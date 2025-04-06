@@ -4,8 +4,6 @@
 # и дает пользователю сохранить отобранные данные, карту в KML и HTML,
 # а также повторить отбор с другими параметрами.
 
-## --- Подключение библиотек ---
-
 # Подключаем нужные библиотеки для работы программы.
 
 try:
@@ -20,7 +18,6 @@ import random
 import os  # Для работы с файловой системой
 from datetime import datetime, timedelta  # Для работы с датой и временем
 from IPython.display import display  # Для показа объектов в Jupyter Notebook
-import pandas as pd  # Для работы с данными (используется мало)
 
 try:
     import folium
@@ -33,19 +30,19 @@ except ImportError:
 from folium.plugins import MarkerCluster  # Для группировки маркеров на карте
 import logging  # Для записи событий и ошибок
 
-# - Настройка записи событий -
+# --- Настройка записи событий ---
 
 # Устанавливаем уровень записи для информации, предупреждений и ошибок.
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# - Определение постоянных значений -
+# --- Определение постоянных значений ---
 
 # Задаем постоянные для частей имен файлов, чтобы было проще их использовать и менять.
 FILTERED_FILE_SUFFIX = "_filtered.data"  # Часть имени для файлов с отобранными данными
 KML_FILE_EXTENSION = ".kml"  # Окончание для файлов KML (для геоданных)
 MAP_FILE_EXTENSION = ".html"  # Окончание для файлов HTML (для сохранения карты)
 
-# - Функция для выбора файла -
+# --- Функция для выбора файла ---
 
 def select_file(file_extension):
     """
@@ -94,7 +91,7 @@ def select_file(file_extension):
             logging.info("Файл не выбран.")
             return None
 
-# - Главная функция для работы с логами и создания карты (Вариант 1) -
+# --- Главная функция для работы с логами и создания карты (Вариант 1) ---
 
 def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequency, min_power_db):
     """
@@ -164,7 +161,7 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
         print("Нет данных GPS для карты.")
         return []
 
-    logging.info(f"Прочитано {len[gps_coords_with_altitude]} точек GPS.")
+    logging.info(f"Прочитано {len(gps_coords_with_altitude)} точек GPS.")
 
     filtered_data_points = []
     matches = 0
@@ -235,7 +232,7 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
                         closest_idx = min(range(len(gps_times_seconds)), key=lambda i: abs(gps_times_seconds[i] - target_sec))
                         time_diff = abs(gps_times_seconds[closest_idx] - target_sec)
                         # Если время близко и частоты в диапазоне, добавляем точку
-                        if time_diff <= 1.0 and min_frequency <= freq_min <= max_frequency и min_frequency <= freq_max <= max_frequency:
+                        if time_diff <= 1.0 and min_frequency <= freq_min <= max_frequency and min_frequency <= freq_max <= max_frequency:
                             filtered_data_points.append({
                                 "coords": gps_coords_with_altitude[closest_idx],
                                 "timestamp": measurement_time,
@@ -259,12 +256,12 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
         print(f"Файл данных '{data_file}' не найден.")
         return []
 
-    # - Создание и показ карты 2D -
+    # --- Создание и показ карты 2D ---
 
     logging.info("Создание карты 2D...")
     print("Создание карты 2D...")
     # Берем центр карты из первой отобранной точки, если есть
-    map_center = filtered_data_points[0]['coords'][:2] если filtered_data_points еще [0, 0]
+    map_center = filtered_data_points[0]['coords'][:2] if filtered_data_points else [0, 0]
     # Делаем карту folium с центром в этой точке
     m = folium.Map(location=map_center, zoom_start=12, tiles=None)
     # Добавляем слой Stadia Maps Alidade Smooth для карты
@@ -302,17 +299,17 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
     logging.info(f"Найдено {matches} точек по параметрам отбора.")
     print(f"Найдено {matches} точек по параметрам отбора.")
     # Показываем информацию об отобранных данных
-    если filtered_lines:
-        logging.info(f"Отобрано {len[filtered_lines]} строк данных.")
+    if filtered_lines:
+        logging.info(f"Отобрано {len(filtered_lines)} строк данных.")
         print(f"Отобранные данные (первые 10 строк):")
-        for i, line в enumerate(filtered_lines[:10]):
+        for i, line in enumerate(filtered_lines[:10]):
             print(line.strip())
             if i == 9:
                 break
         if len(filtered_lines) > 10:
             print(f"... и еще {len(filtered_lines) - 10} строк.")
 
-    # - Обработка действий пользователя после отбора -
+    # --- Обработка действий пользователя после отбора ---
 
     while True:
         print("\nВыберите действие (введите номера через запятую или пробел):")
@@ -331,11 +328,11 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
         exit_flag = False
 
         # Обрабатываем выбор
-        for choice в choices:
+        for choice in choices:
             if choice == '1':
                 logging.info("Выбрано: Показать все найденные точки.")
                 print("\n--- Все найденные точки ---")
-                for i, data в enumerate(filtered_data_points):
+                for i, data in enumerate(filtered_data_points):
                     print(f"Точка {i + 1}")
                     print(f"Координаты: Широта {data['coords'][0]:.6f}, Долгота {data['coords'][1]:.6f}, Высота {data['coords'][2]:.2f} м")
                     print(f"Время: {data['timestamp'].strftime('%H:%M:%S')}")
@@ -343,4 +340,126 @@ def log_to_kml_v1(log_file, kml_output_base, data_file, min_frequency, max_frequ
                     print(f"Мощности: {', '.join(map(str, data['powers']))} дБ")
                     print("-" * 20)
             elif choice == '2':
-                logging.info("
+                logging.info("Выбрано: Сохранить отобранные данные в файл.")
+                filtered_data_filename = base_filename + FILTERED_FILE_SUFFIX
+                print(f"Сохранение отобранных данных в файл: {filtered_data_filename} (.data)")
+                try:
+                    with open(filtered_data_filename, 'w') as f:
+                        f.writelines(filtered_lines)
+                    logging.info(f"Отобранные данные сохранены в файл: {filtered_data_filename}")
+                    print(f"Отобранные данные сохранены.")
+                except Exception as e:
+                    logging.error(f"Ошибка при сохранении данных: {e}")
+                    print(f"Ошибка при сохранении данных: {e}")
+            elif choice == '3':
+                logging.info("Выбрано: Сохранить карту как KML.")
+                kml = simplekml.Kml()
+                for i, data in enumerate(filtered_data_points):
+                    lat, lon, alt = data['coords']
+                    pnt = kml.newpoint(name=f"Точка {i + 1}", coords=[(lon, lat, alt)])
+                    pnt.description = f"Время: {data['timestamp'].strftime('%H:%M:%S')}\nЧастоты: {data['freq_min']}-{data['freq_max']} МГц\nМощности: {', '.join(map(str, data['powers']))} дБ\nВысота: {alt:.2f} м"
+                kml_filename = base_filename + KML_FILE_EXTENSION
+                try:
+                    kml.save(kml_filename)
+                    logging.info(f"Карта сохранена как KML в файл: {kml_filename}")
+                    print(f"Карта сохранена как KML.")
+                except Exception as e:
+                    logging.error(f"Ошибка при сохранении KML: {e}")
+                    print(f"Ошибка при сохранении KML: {e}")
+            elif choice == '4':
+                logging.info("Выбрано: Сохранить карту как HTML.")
+                map_filename = f"map_{base_filename}{MAP_FILE_EXTENSION}"
+                print(f"Сохранение карты как HTML в файл: {map_filename}")
+                try:
+                    m.save(map_filename)
+                    logging.info(f"Карта сохранена как HTML в файл: {map_filename}")
+                    print(f"Карта сохранена как HTML.")
+                except Exception as e:
+                    logging.error(f"Ошибка при сохранении HTML: {e}")
+                    print(f"Ошибка при сохранении HTML: {e}")
+            elif choice == '5':
+                logging.info("Выбрано: Выход.")
+                exit_flag = True
+                break
+            elif choice == '6':
+                logging.info("Выбрано: Задать новые параметры отбора.")
+                return 'retry_filter'  # Сигнал для повторного отбора
+            elif choice:
+                logging.warning(f"Неверный выбор: '{choice}'.")
+                print(f"Неверный ввод: '{choice}'. Выберите из списка.")
+
+        # Если выбрали выход, выходим из цикла
+        if exit_flag:
+            break
+
+    # Возвращаем список отобранных точек
+    return filtered_data_points
+
+# --- Функция для ввода путей к файлам и параметров отбора ---
+
+def get_file_paths_and_filter_params_v1():
+    """
+    Спрашивает у пользователя пути к файлам журнала и данных, а также параметры отбора (Вариант 1).
+    Обрабатывает ошибки ввода и позволяет повторить отбор с другими параметрами.
+    """
+    print("Вариант 1:")
+    # Спрашиваем путь к файлу журнала GPS
+    log_file_path = select_file('.log')
+    if not log_file_path:
+        print("Путь к файлу журнала не указан. Программа остановлена.")
+        return
+
+    # Спрашиваем путь к файлу данных
+    data_file_path = select_file('.data')
+    if not data_file_path:
+        print("Путь к файлу данных не указан. Программа остановлена.")
+        return
+
+    # Спрашиваем параметры отбора в цикле для правильного ввода
+    while True:
+        while True:
+            try:
+                min_freq = int(input("Введите минимальную частоту (МГц): "))
+                break
+            except ValueError:
+                print("Ошибка: Введите целое число для минимальной частоты.")
+
+        while True:
+            try:
+                max_freq = int(input("Введите максимальную частоту (МГц): "))
+                if min_freq > max_freq:
+                    print("Ошибка: Максимальная частота должна быть не меньше минимальной.")
+                else:
+                    break
+            except ValueError:
+                print("Ошибка: Введите целое число для максимальной частоты.")
+
+        while True:
+            try:
+                min_power = float(input("Введите минимальную мощность (дБ): "))
+                break
+            except ValueError:
+                print("Ошибка: Введите число для минимальной мощности.")
+
+        logging.info(f"Параметры отбора: мин. частота={min_freq} МГц, макс. частота={max_freq} МГц, мин. мощность={min_power:.2f} дБ")
+        # Вызываем функцию для отбора и создания карты
+        result = log_to_kml_v1(log_file_path, None, data_file_path, min_freq, max_freq, min_power)
+
+        # Обрабатываем результат
+        if result == 'retry_filter' or not result:
+            # Если нет результатов или пользователь хочет повторить
+            if not result:
+                answer = input("Отбор не дал результатов. Попробовать с другими параметрами? (да/нет): ").strip().lower()
+                if answer != 'да':
+                    break
+            continue  # Спрашиваем новые параметры
+        else:
+            break  # Выходим, если все хорошо
+
+# --- Основной блок программы ---
+
+if __name__ == "__main__":
+    logging.info("Старт программы.")
+    # Запускаем функцию для ввода путей и параметров
+    get_file_paths_and_filter_params_v1()
+    logging.info("Программа завершена.")
